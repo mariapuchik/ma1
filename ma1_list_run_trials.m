@@ -1,4 +1,5 @@
 function ma1_list_run_trials (runpath, list_successful_only)
+% list trials
 
 if nargin < 2,
 	list_successful_only = 0;
