@@ -1,2 +1,2 @@
-# ma1
-monkeypsych ephys analysis initial version
+# ma1 (monkeypsych analysis 1)
+monkeypsych DAG ephys analysis **initial** version
