@@ -276,7 +276,7 @@ for ch=1:n_chans,
 			[histo,bins] = hist(spike_arrival_times,[PSTH_BEFORE_TRIGGER:PSTH_BIN:PSTH_AFTER_TRIGGER]);
 			
 			histo = (histo/PSTH_BIN)/PSTH_instr(p).n_trials; % convert PSTH y-axis to spikes/s
-			histo_s_in = smooth(histo,1,1.5);
+			histo_s_in = ig_smooth(histo,1,1.5);
 			plot(bins,histo,instr_color); hold on;
 			plot(bins,histo_s_in,instr_color,'LineWidth',2);
 		
@@ -305,7 +305,7 @@ for ch=1:n_chans,
 			[histo,bins] = hist(spike_arrival_times,[PSTH_BEFORE_TRIGGER:PSTH_BIN:PSTH_AFTER_TRIGGER]);
 			
 			histo = (histo/PSTH_BIN)/PSTH_choice(p).n_trials; % convert PSTH y-axis to spikes/s
-			histo_s_ch = smooth(histo,1,1.5);
+			histo_s_ch = ig_smooth(histo,1,1.5);
 			plot(bins,histo,choice_color); hold on;
 			plot(bins,histo_s_ch,choice_color,'LineWidth',2);
 			
