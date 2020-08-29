@@ -28,17 +28,17 @@ for k = 1:length(trial),
 	
 	
 	if (list_successful_only && trial(k).success) || ~list_successful_only
-		
-		% align time axis to trial start
-		trial(k).states_onset = trial(k).states_onset - trial(k).tSample_from_time_start(1);
-		trial(k).tSample_from_time_start = trial(k).tSample_from_time_start - trial(k).tSample_from_time_start(1);
-		
+        
+        if 1 % align time axis to trial start
+            trial(k).states_onset = trial(k).states_onset - trial(k).tSample_from_time_start(1);
+            trial(k).tSample_from_time_start = trial(k).tSample_from_time_start - trial(k).tSample_from_time_start(1);
+        end
+ 		
 		
 		if plot_trials,
 			figure(hf);
 			subplot(2,1,1); hold on;
-			title(sprintf('Trial %d',...
-				k));
+			title(sprintf('Trial %d [%d]',k,trial(k).success));
 			
 			plot(trial(k).tSample_from_time_start,trial(k).state,'k');
 			plot(trial(k).tSample_from_time_start,trial(k).x_eye,'g');
