@@ -1,4 +1,4 @@
-function ma1_page_thru_trials_simple(runpath, list_successful_only, plot_trials, detect_saccades,detect_saccades_custom_settings)
+function ma1_page_thru_trials_simple(runpath, list_successful_only, plot_trials, detect_saccades, detect_saccades_custom_settings)
 
 if nargin < 2,
 	list_successful_only = 0;
