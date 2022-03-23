@@ -2,10 +2,11 @@ function ma1_page_thru_trials_simple(runpath, list_successful_only, plot_trials,
 
 % examples:
 % ma1_page_thru_trials_simple('Y:\Data\Linus\20220322\Lin2022-03-22_05.mat',0,0,0,1); % plot fixation hold summary only
+% ma1_page_thru_trials_simple('Y:\Data\Linus\20220322\Lin2022-03-22_05.mat',-1,0,1,0); % plot 2D failed trials
 
 
 if nargin < 2,
-	list_successful_only = 0;
+	list_successful_only = 0; % if -1, list failed only
 end
 
 if nargin < 3,
@@ -33,7 +34,7 @@ disp(runpath);
 
 
 if plot_trials,
-	hf = figure('Name','Plot trial','CurrentChar',' ');
+	hf = figure('Name','Plot trial','CurrentChar',' ','Position',[600 500 600 500]);
 end
 
 if plot_summary || plot_2D,
@@ -63,9 +64,11 @@ for k = 1:length(trial),
        if ~isempty(idx_during_fix_hold),
             last_fix_hold(k).x = trial(k).x_eye(idx_during_fix_hold(end));
             last_fix_hold(k).y = trial(k).y_eye(idx_during_fix_hold(end));
+            fix_hold_dur(k) = trial(k).tSample_from_time_start(idx_during_fix_hold(end)) - trial(k).tSample_from_time_start(idx_during_fix_hold(1)-1);
        else
            last_fix_hold(k).x = NaN;
            last_fix_hold(k).y = NaN;
+           fix_hold_dur(k) = 0;
            
        end
         
@@ -77,7 +80,7 @@ for k = 1:length(trial),
         
    
         
- 	if (list_successful_only && trial(k).success) || ~list_successful_only
+ 	if (list_successful_only == 1 && trial(k).success) || (list_successful_only == -1 && ~trial(k).success) || list_successful_only==0 
  		
 		
 		if plot_trials,
@@ -115,13 +118,17 @@ for k = 1:length(trial),
 		if plot_trials,
 			figure(hf);
 			ig_set_all_axes('Xlim',[trial(k).tSample_from_time_start(1) trial(k).tSample_from_time_start(end)]);
-			drawnow; pause;
+
 			
-			if get(gcf,'CurrentChar')=='q',
-				% close;
-				break;
-			end
-			clf(hf);
+            
+            if ~plot_2D
+                drawnow; pause;
+                if get(gcf,'CurrentChar')=='q',
+                    % close;
+                    break;
+                end
+                clf(hf);
+            end
         end
         
         if plot_2D,
@@ -151,6 +158,10 @@ for k = 1:length(trial),
 				break;
 			end
 			clf(hf2D);
+            
+            if plot_trials,
+                clf(hf);
+            end
         end
         
         
@@ -179,6 +190,19 @@ if plot_summary
     axis equal
     set(gca,'Xlim',axes,'Ylim',axes);
     title(sprintf('%s %d succ. %d failed trials',runpath,length(idx_succ),length(idx_fail)),'Interpreter','none');
+    
+    
+    figure('Position',[300 300 600 600]);
+    bins = [0 0.01:0.1:(task.timing.fix_time_hold + task.timing.fix_time_hold_var)];
+    histSuccDur = hist(fix_hold_dur(idx_succ),bins);
+    histFailDur = hist(fix_hold_dur(idx_fail),bins);
+    
+    plot(bins,ig_hist2per(histSuccDur),'g','LineWidth',2); hold on;
+    plot(bins,ig_hist2per(histFailDur),'r','LineWidth',2);
+    xlabel('Fixation duration (s)');
+    ylabel('% trials');
+    title(sprintf('%s %d succ. %d failed trials',runpath,length(idx_succ),length(idx_fail)),'Interpreter','none');
+    legend('correct','failed');
 end
 
 
