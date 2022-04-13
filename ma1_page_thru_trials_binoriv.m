@@ -4,7 +4,6 @@ function ma1_page_thru_trials_binoriv(runpath, list_successful_only, plot_trials
 % ma1_page_thru_trials_binoriv('Y:\Data\Linus\20220322\Lin2022-03-22_05.mat',0,0,0,1); % plot fixation hold summary only
 % ma1_page_thru_trials_binoriv('Y:\Data\Linus\20220322\Lin2022-03-22_05.mat',-1,0,1,0); % plot 2D failed trials
 
-
 if nargin < 2,
 	list_successful_only = 0; % if -1, list failed only
 end
@@ -29,9 +28,31 @@ if nargin < 7,
 	detect_saccades_custom_settings = '';
 end
 
-load(runpath);
+load(runpath, 'trial', 'task');
 disp(runpath);
 
+% check the binoriv task data type (fixation or saccade)
+if strcmp(task.custom_conditions, ...
+        'D:\Sources\MATLAB\monkeypsych_3.0\conditions\Linus\combined_condition_file_Linus_binoriv_direct_saccade_grating')
+    
+    fieldname = 'tar';
+    statenum = 5;
+    
+    time_hold = 'fix_time_hold';
+    time_hold_var = 'fix_time_hold_var';
+    
+elseif strcmp(task.custom_conditions, ...
+        'D:\Sources\MATLAB\monkeypsych_3.0\conditions\Linus\combined_condition_file_Linus_binoriv_fixation_grating')
+    
+    fieldname = 'fix';
+    statenum = 3;
+    
+    time_hold = 'tar_time_hold';
+    time_hold_var = 'tar_time_hold_var';
+    
+else
+    error('Wrong Paradigm, Change Result File')
+end
 
 if plot_trials,
 	hf = figure('Name','Plot trial','CurrentChar',' ','Position',[600 500 600 500]);
@@ -45,7 +66,7 @@ if plot_2D
     hf2D = figure('Name','Plot 2D','CurrentChar',' ','Position',[1200 500 500 500]);
 end
 
-for k = 1:length(trial),
+for k = 1:length(trial)
     
     
     if 1 % align time axis to trial start
@@ -56,10 +77,9 @@ for k = 1:length(trial),
 	
     if plot_summary || plot_2D,
         
-        idx_before_fix_hold = find(trial(k).state < 3);
-        idx_during_fix_hold = find(trial(k).state == 3);
-        idx_after_fix_hold = find(trial(k).state > 3);
-        
+        idx_before_fix_hold = find(trial(k).state < statenum);
+        idx_during_fix_hold = find(trial(k).state == statenum);
+        idx_after_fix_hold = find(trial(k).state > statenum);
         
        if ~isempty(idx_during_fix_hold),
             last_fix_hold(k).x = trial(k).x_eye(idx_during_fix_hold(end));
@@ -72,9 +92,7 @@ for k = 1:length(trial),
            
        end
         
-        
-
-        trial_fix_window(k, :) = [trial(k).eye.fix.pos];
+        trial_fix_window(k, :) = [trial(k).eye.(fieldname).pos];
         
     end
         
@@ -123,7 +141,7 @@ for k = 1:length(trial),
             
             if ~plot_2D
                 drawnow; pause;
-                if get(gcf,'CurrentChar')=='q',
+                if get(gcf,'CurrentChar')=='q'
                     % close;
                     break;
                 end
@@ -134,8 +152,11 @@ for k = 1:length(trial),
         if plot_2D,
             figure(hf2D);
             
-            w = nsidedpoly(100, 'Center', [trial(k).eye.fix.x trial(k).eye.fix.y], 'Radius', trial(k).eye.fix.radius); plot(w, 'FaceColor', 'r'); hold on;
-
+            w = nsidedpoly(100, ...
+                'Center', [trial(k).eye.(fieldname).x trial(k).eye.(fieldname).y], ...
+                'Radius', trial(k).eye.(fieldname).radius); plot(w, 'FaceColor', 'r');
+            hold on;
+            
             plot(trial(k).x_eye,trial(k).y_eye,'k-','LineWidth',0.1);
             plot(trial(k).x_eye(idx_before_fix_hold),trial(k).y_eye(idx_before_fix_hold),'b-','LineWidth',0.2);
             plot(trial(k).x_eye(idx_during_fix_hold),trial(k).y_eye(idx_during_fix_hold),'g-','LineWidth',0.2);
@@ -159,7 +180,7 @@ for k = 1:length(trial),
 			end
 			clf(hf2D);
             
-            if plot_trials,
+            if plot_trials
                 clf(hf);
             end
         end
@@ -181,7 +202,7 @@ if plot_summary
     
     uWindows = unique(trial_fix_window, 'rows');
     
-    for k=1:size(uWindows,1),     
+    for k=1:size(uWindows,1)     
            w = nsidedpoly(100, 'Center', [uWindows(k,1) uWindows(k,2)], 'Radius', uWindows(k,4)); plot(w, 'FaceColor', [0.9 0.9 0.9]); hold on;
     end
     plot([last_fix_hold(idx_succ).x],[last_fix_hold(idx_succ).y],'g.','MarkerSize',5); % plot last sample of fixation hold
