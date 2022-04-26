@@ -32,7 +32,7 @@ load(runpath, 'trial', 'task');
 disp(runpath);
 
 % check the binoriv task data type (fixation or saccade)
-if strcmp(task.custom_conditions, ...
+if strcmp(task.custom_conditions, ... % saccade task
         'D:\Sources\MATLAB\monkeypsych_3.0\conditions\Linus\combined_condition_file_Linus_binoriv_direct_saccade_grating')
     
     fieldname = {'fix', 'tar'};
@@ -41,10 +41,12 @@ if strcmp(task.custom_conditions, ...
     time_hold = {'tar_time_hold', 'fix_time_hold'};
     time_hold_var = {'tar_time_hold_var', 'fix_time_hold_var'};
     
-elseif strcmp(task.custom_conditions, ...
+elseif strcmp(task.custom_conditions, ... % fixation task with grating
         'D:\Sources\MATLAB\monkeypsych_3.0\conditions\Linus\combined_condition_file_Linus_binoriv_fixation_grating') || ...
-   strcmp(task.custom_conditions, ...
-        'D:\Sources\MATLAB\monkeypsych_3.0\conditions\Linus\combined_condition_file_Linus_binoriv_fixation')
+	strcmp(task.custom_conditions, ... % fixation task without grating
+        'D:\Sources\MATLAB\monkeypsych_3.0\conditions\Linus\combined_condition_file_Linus_binoriv_fixation') || ...
+	strcmp(task.custom_conditions, ... % calibration
+        'D:\Sources\MATLAB\monkeypsych_3.0\conditions\Linus\combined_condition_file_Linus')
     
     fieldname = {'fix'};
     statenum = [3];
