@@ -38,9 +38,6 @@ if strcmp(task.custom_conditions, ... % saccade task
     fieldname = {'fix', 'tar'};
     statenum = [3 5];
     
-    time_hold = {'tar_time_hold', 'fix_time_hold'};
-    time_hold_var = {'tar_time_hold_var', 'fix_time_hold_var'};
-    
 elseif strcmp(task.custom_conditions, ... % fixation task with grating
         'D:\Sources\MATLAB\monkeypsych_3.0\conditions\Linus\combined_condition_file_Linus_binoriv_fixation_grating') || ...
 	strcmp(task.custom_conditions, ... % fixation task without grating
@@ -51,13 +48,11 @@ elseif strcmp(task.custom_conditions, ... % fixation task with grating
     fieldname = {'fix'};
     statenum = [3];
     
-    time_hold = {'tar_time_hold'};
-    time_hold_var = {'tar_time_hold_var'};
-    
 else
     error('Wrong Paradigm, Change Result File')
 end
 
+% loop through available fields
 for ii = 1:length(fieldname)
     
     if plot_trials,
@@ -233,4 +228,3 @@ for ii = 1:length(fieldname)
     end
     
 end
-
