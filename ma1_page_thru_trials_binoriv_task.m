@@ -1,4 +1,4 @@
-function ma1_page_thru_trials_simple(runpath, list_successful_only, plot_trials, plot_2D, plot_summary, detect_saccades, detect_saccades_custom_settings)
+function ma1_page_thru_trials_binoriv_task(runpath, list_successful_only, plot_trials, plot_2D, plot_summary, detect_saccades, detect_saccades_custom_settings)
 
 % examples:
 % ma1_page_thru_trials_simple('Y:\Data\Linus\20220322\Lin2022-03-22_05.mat',0,0,0,1); % plot fixation hold summary only
@@ -75,7 +75,7 @@ for k = 1:length(trial),
         
         
 %         trial_fix_window(k, :) = [trial(k).eye.fix.pos];
-        
+                
         trial_fix_window(k, :) = [trial(k).eye.fix.pos_red];
         trial_fix_window(k+1, :) = [trial(k).eye.fix.pos_blue];
         
