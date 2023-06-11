@@ -57,9 +57,12 @@ for k = 1:length(trial),
 	
     if plot_summary || plot_2D,
         
-        idx_before_fix_hold = find(trial(k).state < 3);
-        idx_during_fix_hold = find(trial(k).state == 3);
-        idx_after_fix_hold = find(trial(k).state > 3);
+%         idx_before_fix_hold = find(trial(k).state < 3);
+%         idx_during_fix_hold = find(trial(k).state == 3);
+%         idx_after_fix_hold = find(trial(k).state > 3);
+        idx_before_fix_hold = find(trial(k).state < 33);
+        idx_during_fix_hold = find(trial(k).state == 34);
+        idx_after_fix_hold = find(trial(k).state > 50);
         
         
        if ~isempty(idx_during_fix_hold),
