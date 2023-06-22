@@ -1,8 +1,9 @@
-function ma1_page_thru_trials_simple(runpath, list_successful_only, plot_trials, plot_2D, plot_summary, detect_saccades, detect_saccades_custom_settings)
+function ma1_page_thru_trials_simple(runpath, list_successful_only, plot_trials, plot_2D, plot_summary, recalibrate, detect_saccades, detect_saccades_custom_settings)
 
 % examples:
 % ma1_page_thru_trials_simple('Y:\Data\Linus\20220322\Lin2022-03-22_05.mat',0,0,0,1); % plot fixation hold summary only
 % ma1_page_thru_trials_simple('Y:\Data\Linus\20220322\Lin2022-03-22_05.mat',-1,0,1,0); % plot 2D failed trials
+% ma1_page_thru_trials_simple('Y:\Data\Bacchus\20230615\Bac2023-06-15_02.mat',0,0,0,3,1); % recalibrate eye pos 
 
 
 if nargin < 2,
@@ -22,15 +23,21 @@ if nargin < 5,
 end
 
 if nargin < 6,
-    detect_saccades = 0;
+   recalibrate = 0; % if 1, re-do calibration, if 2, use previously saved calibration (last_eye_recal.mat)
 end
 
 if nargin < 7,
+    detect_saccades = 0;
+end
+
+if nargin < 8,
     detect_saccades_custom_settings = '';
 end
 
 load(runpath);
 disp(runpath);
+
+run_folder = fileparts(runpath);
 
 
 if plot_trials,
@@ -43,6 +50,10 @@ end
 
 if plot_2D
     hf2D = figure('Name','Plot 2D','CurrentChar',' ','Position',[1200 500 500 500]);
+end
+
+if recalibrate
+    plot_summary = 3;
 end
 
 for k = 1:length(trial),
@@ -216,10 +227,10 @@ if plot_summary,
         plot(vertcat(cellArray_x{:}),vertcat(cellArray_y{:}),'g.','MarkerSize',5); % plot all samples of fixation hold
         % plot([all_fix_hold(idx_fail).x],[all_fix_hold(idx_fail).y],'r.','MarkerSize',2); % plot all samples of fixation hold
         
-    elseif plot_summary == 3,
-        for k = 1:length(idx_succ),
+    elseif plot_summary == 3
+        for k = 1:length(idx_succ) % for each succ. trial
             t = idx_succ(k); % trial number
-            for w = 1:length(uWindows),
+            for w = 1:length(uWindows)
                 if trial_fix_window(t,1) == uWindows(w,1) && trial_fix_window(t,2) == uWindows(w,2),
                     Gx(k) = mean(all_fix_hold(t).x);
                     Gy(k) = mean(all_fix_hold(t).y);
@@ -230,20 +241,31 @@ if plot_summary,
             end
         end
         
-        if 1, % perform nonlinear eye pos recalibration
-            % transformationType: 'NonreflectiveSimilarity' | 'Similarity' | 'Affine' | 'Projective' | 'pwl'
-            % or 'polynomial'
-            transformationType = 'polynomial';
-            switch transformationType
-                case 'polynomial'
-                    tform = fitgeotrans([TTx TTy], [Gx Gy], transformationType,2);
-                otherwise
-                    tform = fitgeotrans([TTx TTy], [Gx Gy], transformationType);
+        if recalibrate % perform nonlinear eye pos recalibration
+            if recalibrate == 1
+                % transformationType: 'NonreflectiveSimilarity' | 'Similarity' | 'Affine' | 'Projective' | 'pwl'
+                % or 'polynomial'
+                transformationType = 'polynomial';
+                switch transformationType
+                    case 'polynomial'
+                        tform = fitgeotrans([TTx TTy], [Gx Gy], transformationType,2);
+                    otherwise
+                        tform = fitgeotrans([TTx TTy], [Gx Gy], transformationType);
+                end
+                save([run_folder filesep 'last_eye_recal.mat'],'tform');
+                disp(['saved ' run_folder filesep 'last_eye_recal.mat']);
+                
+            elseif recalibrate == 2
+                if exist([run_folder filesep 'last_eye_recal.mat'],'file')
+                        load([run_folder filesep 'last_eye_recal.mat']);
+                        disp(['loaded ' run_folder filesep 'last_eye_recal.mat']);
+                end
             end
-            
+            tic
             recG = transformPointsInverse(tform, [Gx Gy]);
-            
+            toc
             plot(recG(:,1),recG(:,2),'k.');
+            
         end
             
         
