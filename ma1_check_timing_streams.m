@@ -28,15 +28,14 @@ if plot_trials,
     figure('Name','Plot trial','Position',[500 500 1200 800]);
 end
 
-
+%% Alignment 
 First_trial_INI_dur = length(First_trial_INI.ECG1)/trial(1).TDT_ECG1_samplingrate; % should be equal to trial(1).TDT_state_onsets(2) - trial(1).TDT_state_onsets(1)!
 trialDuration = arrayfun(@(s) length(s.TDT_ECG1)/s.TDT_ECG1_samplingrate, trial); % trial durations from state 2 to next state 2
 trialDuration(1) = trialDuration(1) + First_trial_INI_dur; 
-trialOffset = cumsum(trialDuration); 
+trialOffset = cumsum(trialDuration); % relative to the first sample of First_trial_INI
 trialOffset = [First_trial_INI_dur trialOffset(1:end-1)]; % insert first, remove last
 
-%% add new field TDT_state_onsets_aligned_to_1st_INI to trial
-
+%% Add new field TDT_state_onsets_aligned_to_1st_INI to trial
 TDT_state_onsets_aligned_to_1st_INI = cellfun(@(x,y) x+y, arrayfun(@(s) s.TDT_state_onsets, trial,'UniformOutput',false),num2cell(trialOffset),'UniformOutput', false);
 
 % Use cellfun to convert each element of TDT_state_onsets_aligned_to_1st_INI to a double array
@@ -45,13 +44,11 @@ convertedField = cellfun(@(c) double(c), TDT_state_onsets_aligned_to_1st_INI, 'U
 % Add the new fields to each element of 'trial' struct array
 [trial.TDT_state_onsets_aligned_to_1st_INI] = convertedField{:};
 
+
 %% loop over trials
 for k = 1:length(trial),
     
-    
     if (list_successful_only && trial(k).success) || ~list_successful_only
-        
-       
         
         % align time axis to trial start
         trial(k).tSample_from_trial_start = trial(k).tSample_from_time_start - trial(k).tSample_from_time_start(1);
@@ -67,8 +64,6 @@ for k = 1:length(trial),
         else
             reward_time = [];
         end
-        
-        
         
         
         if plot_trials,
@@ -97,8 +92,6 @@ for k = 1:length(trial),
             subplot(2,1,2); hold on; % plot using continuous time, relative to first sample of First_trial_INI - which is also the same reference for extracted R-peaks
             
             
-
-            
             if k == 1, % first trial, special case
                 plot( [0:length(First_trial_INI.ECG1)-1 + length(trial(k).TDT_ECG1)]/trial(k).TDT_ECG1_samplingrate, [First_trial_INI.ECG1 trial(k).TDT_ECG1],'k');
                 % ig_add_multiple_vertical_lines(trial(k).TDT_state_onsets + trialOffset(k),'Color','b','LineStyle','--'); % 
@@ -107,13 +100,15 @@ for k = 1:length(trial),
                 plot( trialOffset(k) + [0:length(trial(k).TDT_ECG1)-1]/trial(k).TDT_ECG1_samplingrate , trial(k).TDT_ECG1,'k');
                 % ig_add_multiple_vertical_lines(trial(k).TDT_state_onsets + trialOffset(k),'Color','b','LineStyle','--'); % 
             end
-            
+            ylim = get(gca,'Ylim');
             ig_add_multiple_vertical_lines(trial(k).TDT_state_onsets_aligned_to_1st_INI,'Color','b','LineStyle','--');
+            text(trial(k).TDT_state_onsets_aligned_to_1st_INI,ylim(2)*ones(size(trial(k).TDT_state_onsets_aligned_to_1st_INI)),num2str(trial(k).TDT_states),...
+                'FontSize',8,'Color',[0    0   1]);
             
-            xlim = get(gca,'Xlim');
+            set(gca,'Xlim',[trial(k).TDT_state_onsets_aligned_to_1st_INI(1) trial(k).TDT_state_onsets_aligned_to_1st_INI(end)]);
 
             if ~isempty(matECG),
-                ig_add_multiple_vertical_lines(Rpeak_t(Rpeak_t > xlim(1) &  Rpeak_t < xlim(2)),'Color','y');
+                ig_add_multiple_vertical_lines(Rpeak_t(Rpeak_t > trial(k).TDT_state_onsets_aligned_to_1st_INI(1) &  Rpeak_t < trial(k).TDT_state_onsets_aligned_to_1st_INI(end)),'Color','y');
             end
             
             
