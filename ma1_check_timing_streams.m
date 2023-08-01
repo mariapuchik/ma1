@@ -36,10 +36,10 @@ trialOffset = cumsum(trialDuration); % relative to the first sample of First_tri
 trialOffset = [First_trial_INI_dur trialOffset(1:end-1)]; % insert first, remove last
 
 %% Add new field TDT_state_onsets_aligned_to_1st_INI to trial
-TDT_state_onsets_aligned_to_1st_INI = cellfun(@(x,y) x+y, arrayfun(@(s) s.TDT_state_onsets, trial,'UniformOutput',false),num2cell(trialOffset),'UniformOutput', false);
+TDT_state_onsets_aligned_to_1st_INI = cellfun(@(x,y) x+y, {trial.TDT_state_onsets} ,num2cell(trialOffset), 'UniformOutput', false);
 
 % Use cellfun to convert each element of TDT_state_onsets_aligned_to_1st_INI to a double array
-convertedField = cellfun(@(c) double(c), TDT_state_onsets_aligned_to_1st_INI, 'UniformOutput', false);
+convertedField = cellfun(@double, TDT_state_onsets_aligned_to_1st_INI, 'UniformOutput', false);
 
 % Add the new fields to each element of 'trial' struct array
 [trial.TDT_state_onsets_aligned_to_1st_INI] = convertedField{:};
