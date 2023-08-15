@@ -1,4 +1,4 @@
-function ma1_check_timing_streams(runpath, list_successful_only, plot_trials, matECG, matEEG_block)
+function trial = ma1_check_timing_streams(runpath, list_successful_only, plot_trials, matECG, matECG_block)
 % ma1_check_timing_streams('Lincombined2015-05-06_03.mat',1,1)
 % ma1_check_timing_streams('Magcombined2023-05-18_02_block_01.mat', 0, 1,'Y:\Data\BodySignals\ECG\Magnus\20230518\20230518_ecg.mat',1)
 
@@ -13,7 +13,7 @@ end
 
 if nargin < 4,
     matECG = '';
-    matEEG_block = 0;
+    matECG_block = 0;
 end
 
 load(runpath);
@@ -21,7 +21,7 @@ disp(runpath);
 
 if ~isempty(matECG),
     load(matECG);
-    Rpeak_t = out(matEEG_block).Rpeak_t;
+    Rpeak_t = out(matECG_block).Rpeak_t;
 end
 
 if plot_trials,
